@@ -1,0 +1,33 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+
+# ---- Virtual environments ----
+.venv/
+venv/
+env/
+ENV/
+
+# ---- PyInstaller / build output ----
+build/
+dist/
+*.spec
+
+# ---- OS / editor cruft ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# ---- Whole-slide images & generated output (too large for git) ----
+*.vmic
+*.vmici
+*.tif
+*.tiff
+VMIC_screenshots/
+
+# Keep the OpenSeadragon vendor folder, but do not commit huge builds by accident
+# (the small openseadragon.min.js is fine to commit if you choose to vendor it)

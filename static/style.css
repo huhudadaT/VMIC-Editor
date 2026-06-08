@@ -1,0 +1,63 @@
+:root{
+  --bg:#0e1216; --panel:#161b22; --line:#283039;
+  --ink:#cdd6df; --dim:#7a8794; --accent:#74f7a8;
+}
+*{box-sizing:border-box}
+html,body{
+  margin:0;height:100%;background:var(--bg);color:var(--ink);
+  font:12px/1.4 ui-monospace,"Cascadia Code","JetBrains Mono",Menlo,Consolas,monospace;
+  display:flex;flex-direction:column;overflow:hidden;
+}
+header{
+  display:flex;align-items:center;gap:8px;padding:7px 12px;
+  background:var(--panel);border-bottom:1px solid var(--line);flex:0 0 auto;
+}
+.brand{color:var(--accent);font-weight:700;letter-spacing:.5px;font-size:13px}
+.spacer{flex:1}
+#status{color:var(--dim);font-size:11px;max-width:46%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+button{
+  background:#1b222b;color:var(--ink);border:1px solid var(--line);border-radius:4px;
+  padding:4px 8px;cursor:pointer;font:inherit;line-height:1;
+}
+button:hover{border-color:var(--accent);color:var(--accent)}
+
+.toolbar{
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:6px 12px;
+  background:var(--panel);border-bottom:1px solid var(--line);flex:0 0 auto;
+}
+.grp{display:inline-flex;align-items:center;gap:5px}
+.grp b{color:var(--dim);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.grp i{color:var(--dim);font-style:normal}
+.sep{width:1px;height:22px;background:var(--line)}
+
+input[type=range]{accent-color:var(--accent);width:108px;height:18px}
+input[type=number]{
+  background:var(--bg);color:var(--ink);border:1px solid var(--line);
+  border-radius:4px;padding:3px 4px;font:inherit;width:56px;text-align:right;
+}
+input[type=number]:disabled{opacity:.4}
+select{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:3px 4px;font:inherit}
+
+#osd{flex:1 1 auto;min-height:0;background:#f0f0f0}
+
+#msg{
+  position:fixed;bottom:14px;left:14px;z-index:60;display:none;
+  background:rgba(20,26,32,.95);border:1px solid var(--line);border-radius:6px;
+  padding:9px 13px;color:var(--ink);max-width:62%;white-space:pre-wrap;
+  box-shadow:0 6px 22px rgba(0,0,0,.5);
+}
+
+/* working / progress overlay */
+#busy{
+  position:fixed;inset:0;z-index:100;display:none;
+  align-items:center;justify-content:center;flex-direction:column;gap:16px;
+  background:rgba(8,11,14,.74);
+}
+#busy.show{display:flex}
+.spinner{
+  width:46px;height:46px;border:4px solid var(--line);border-top-color:var(--accent);
+  border-radius:50%;animation:spin .9s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+#busyText{color:var(--ink);font-size:13px;max-width:70%;text-align:center;white-space:pre-wrap}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VMIC Editor</title>
+<link rel="stylesheet" href="/static/style.css">
+<script src="/static/vendor/openseadragon/openseadragon.min.js"></script>
+</head>
+<body>
+<header>
+  <span class="brand">VMIC&nbsp;EDITOR</span>
+  <button id="openBtn" title="Open a slide (up to 5 at once)">Open slide</button>
+  <span class="spacer"></span>
+  <span id="status">no slide loaded</span>
+</header>
+
+<div class="toolbar">
+  <span class="grp" title="Zoom relative to the first view (1× = how the slide first appeared). Type a number and press Enter.">
+    <b>Zoom</b><input id="magInput" type="number" min="0.05" step="0.5" value="1"><i>×</i>
+  </span>
+  <span class="sep"></span>
+
+  <span class="grp" title="Pick the slide you want to edit. The mouse moves/resizes it (drag = move, scroll = resize) and the controls below act on it. Choose 'View' for plain pan/zoom.">
+    <b>Active</b>
+    <select id="active"><option value="view">View (pan / zoom)</option></select>
+  </span>
+  <span class="grp" title="Exact size of the active slide (100% = original)">
+    <b>Size</b><input id="sizePct" type="number" min="1" step="1" value="100" disabled><i>%</i>
+    <button data-scale="-" title="shrink 1%">−</button><button data-scale="+" title="grow 1%">＋</button>
+  </span>
+  <span class="grp" title="Move the active slide one small step">
+    <b>Nudge</b>
+    <button data-nudge="x-">◀</button><button data-nudge="x+">▶</button><button data-nudge="y-">▲</button><button data-nudge="y+">▼</button>
+  </span>
+  <span class="grp" title="Rotate the active slide (degrees)">
+    <b>Rotate</b><input id="rot" type="range" min="-180" max="180" step="0.5" value="0" disabled><input id="rotnum" type="number" min="-180" max="180" step="0.5" value="0" disabled><i>°</i>
+  </span>
+  <span class="grp" title="How see-through the active slide is">
+    <b>Opacity</b><input id="op" type="range" min="0" max="1" step="0.05" value="1" disabled>
+  </span>
+  <button id="removeBtn" title="Remove the active slide from the view" disabled>Remove</button>
+  <span class="sep"></span>
+
+  <button id="shot" title="Save each open slide's viewed region as a TIFF, rebuilt from the source tiles">Screenshot</button>
+  <span class="grp" title="Save a slide with its current rotation, as a new VMIC file">
+    <b>Save as VMIC</b><span id="saveButtons"></span>
+  </span>
+</div>
+
+<div id="osd"></div>
+
+<div id="busy"><div class="spinner"></div><div id="busyText">Working…</div></div>
+<div id="msg"></div>
+
+<script src="/static/viewer.js"></script>
+</body>
+</html>

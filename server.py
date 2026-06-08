@@ -13,6 +13,7 @@ Serves:
 import io
 import os
 import re
+import sys
 import base64
 
 from flask import Flask, Response, request, jsonify, send_from_directory
@@ -20,7 +21,14 @@ from flask import Flask, Response, request, jsonify, send_from_directory
 from vmic_reader import VmicReader
 import export
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+def _base_dir():
+    # When frozen by PyInstaller, bundled data is unpacked to sys._MEIPASS.
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        return sys._MEIPASS
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+HERE = _base_dir()
 STATIC = os.path.join(HERE, 'static')
 
 app = Flask(__name__, static_folder=None)

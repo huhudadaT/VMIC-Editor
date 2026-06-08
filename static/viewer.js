@@ -229,12 +229,7 @@
     var present = loadedSlots();
     if (!present.length) { msg('no slide to capture'); return; }
 
-    var outdir = null;
-    if (hasApi('pick_dir')) {
-      try { outdir = await window.pywebview.api.pick_dir(); } catch (e) { outdir = null; }
-      if (!outdir) { status('export cancelled'); return; }
-    }
-
+    // capture the viewed region for each open slide
     var b = viewer.viewport.getBounds(true);
     var vp = [
       new OpenSeadragon.Point(b.x, b.y),
@@ -248,8 +243,21 @@
         var ip = item.viewportToImageCoordinates(p);
         return { x: ip.x, y: ip.y };
       });
-      return { slot: slot, name: slides[slot].name.replace(/\.vmic$/i, '') + '_region', corners: corners };
+      var def = slides[slot].name.replace(/\.vmic$/i, '') + '_screenshot';
+      return { slot: slot, name: def, corners: corners };
     });
+
+    // let the user name each screenshot (so same-named slides don't clash)
+    var names = await promptNames(shots);
+    if (!names) { status('screenshot cancelled'); return; }
+    shots.forEach(function (sh, i) { sh.name = names[i]; });
+
+    // choose the destination folder
+    var outdir = null;
+    if (hasApi('pick_dir')) {
+      try { outdir = await window.pywebview.api.pick_dir(); } catch (e) { outdir = null; }
+      if (!outdir) { status('export cancelled'); return; }
+    }
 
     busy(true, 'Converting the viewed region to TIFF…\nReading from the source tiles (' +
                present.length + ' slide' + (present.length > 1 ? 's' : '') + ').');
@@ -260,9 +268,53 @@
       });
       var out = await res.json();
       if (out.error) { msg('screenshot failed: ' + out.error); }
-      else { msg('Saved TIFF:\n' + out.saved.join('\n')); status('region(s) saved'); }
+      else { msg('Saved TIFF:\n' + out.saved.join('\n')); status(out.saved.length + ' screenshot(s) saved'); }
     } catch (e) { msg('screenshot failed: ' + e); }
     finally { busy(false); }
+  }
+
+  // modal asking the user to name each screenshot; resolves to names[] or null
+  function promptNames(shots) {
+    return new Promise(function (resolve) {
+      var modal = $('nameModal'), rows = $('nameRows');
+      var ok = $('nameOk'), cancel = $('nameCancel');
+      rows.innerHTML = '';
+      var inputs = [];
+      shots.forEach(function (sh) {
+        var row = document.createElement('div');
+        row.className = 'nameRow';
+        var lab = document.createElement('label');
+        lab.textContent = 'Slide ' + sh.slot;
+        var inp = document.createElement('input');
+        inp.type = 'text'; inp.value = sh.name; inp.spellcheck = false;
+        var ext = document.createElement('span');
+        ext.className = 'ext'; ext.textContent = '.tif';
+        row.appendChild(lab); row.appendChild(inp); row.appendChild(ext);
+        rows.appendChild(row);
+        inputs.push(inp);
+      });
+      $('nameModalPlural').style.display = shots.length > 1 ? '' : 'none';
+
+      function close() {
+        modal.classList.remove('show');
+        ok.onclick = cancel.onclick = modal.onkeydown = null;
+      }
+      ok.onclick = function () {
+        var names = inputs.map(function (i, k) {
+          var n = (i.value || '').trim().replace(/\.tiff?$/i, '');
+          return n || shots[k].name;          // fall back to default if blank
+        });
+        close(); resolve(names);
+      };
+      cancel.onclick = function () { close(); resolve(null); };
+      modal.onkeydown = function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); ok.onclick(); }
+        else if (e.key === 'Escape') { e.preventDefault(); cancel.onclick(); }
+      };
+
+      modal.classList.add('show');
+      if (inputs.length) { inputs[0].focus(); inputs[0].select(); }
+    });
   }
 
   // --------------------------------------------------- save rotated as VMIC

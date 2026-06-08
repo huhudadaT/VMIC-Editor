@@ -101,18 +101,32 @@ def slide_tile(slot, level, tile):
     return Response(data, mimetype=mt)
 
 
+def _unique_tif(outdir, base, used):
+    """Return a .tif path in outdir that clashes with neither an existing file
+    nor a name already chosen in this batch; appends ' (2)', ' (3)', ... ."""
+    base = base or 'screenshot'
+    path = os.path.join(outdir, base + '.tif')
+    n = 2
+    while path.lower() in used or os.path.exists(path):
+        path = os.path.join(outdir, '%s (%d).tif' % (base, n))
+        n += 1
+    used.add(path.lower())
+    return path
+
+
 @app.route('/api/screenshot', methods=['POST'])
 def api_screenshot():
     data = request.get_json(force=True)
     outdir = data.get('outdir') or os.path.join(os.path.expanduser('~'), 'VMIC_screenshots')
     os.makedirs(outdir, exist_ok=True)
     saved = []
+    used = set()
     for shot in data.get('shots', []):
         reader = SLIDES.get(shot.get('slot'))
         if not reader or not shot.get('corners'):
             continue
-        name = re.sub(r'[^\w.-]', '_', shot.get('name', 'view')) + '.tif'
-        path = os.path.join(outdir, name)
+        base = re.sub(r'[^\w.-]', '_', shot.get('name', 'screenshot'))
+        path = _unique_tif(outdir, base, used)
         export.region_to_tiff(reader, shot['corners'], path)
         saved.append(path)
     return jsonify({'saved': saved, 'outdir': outdir})
